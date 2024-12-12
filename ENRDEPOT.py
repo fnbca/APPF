@@ -5,12 +5,12 @@ import requests
 from PIL import Image, ImageOps
 
 # Configuration API Fidealis
-API_URL = "https://api.fidealis.com/basic_v3.php"
-API_KEY = "3LAwN2TqqPP6jq86nH7L8kvxCs9N7213402"
-ACCOUNT_KEY = "d366a6084d9e215ee659951c332389b3fca47234"
+API_URL = os.getenv("API_URL")
+API_KEY = os.getenv("API_KEY")
+ACCOUNT_KEY = os.getenv("ACCOUNT_KEY")
 
 # Configuration API Google Maps
-GOOGLE_API_KEY = "AIzaSyD7DnyiDjdccyEam2l6t0CrL9-oI4CFYQ4"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # Fonction pour obtenir les coordonnées GPS à partir d'une adresse
 def get_coordinates(address):
