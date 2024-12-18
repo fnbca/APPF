@@ -145,6 +145,6 @@ if st.button("Soumettre"):
             description = f"SCELLÉ NUMERIQUE Bénéficiaire: Nom: {client_name}, Adresse: {address}, Coordonnées GPS: Latitude {latitude}, Longitude {longitude}"
 
             # Appeler l'API avec les fichiers collages
-            st.info("Envoi des données à l'API...")
+            st.info("Envoi des données")
             api_upload_files(description, collages, session_id)
             st.success("Données envoyées avec succès !")
