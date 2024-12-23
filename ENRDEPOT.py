@@ -12,7 +12,6 @@ ACCOUNT_KEY = os.getenv("ACCOUNT_KEY")
 # Configuration API Google Maps
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-
 # Fonction pour obtenir les coordonnées GPS à partir d'une adresse
 def get_coordinates(address):
     url = f"https://maps.googleapis.com/maps/api/geocode/json?address={address}&key={GOOGLE_API_KEY}"
@@ -56,6 +55,11 @@ def api_upload_files(description, files, session_id):
                 data[f"file{idx}"] = encoded_file
         requests.post(API_URL, data=data)
 
+# Function to get the quantity of product 4 (deposit package)
+def get_quantity_for_product_4(credit_data):
+    if "4" in credit_data:
+        return credit_data["4"]["quantity"]
+    return "Product 4 not found."
 
 # Fonction pour créer un collage
 def create_collage(images, output_path, max_images=3):
@@ -69,6 +73,13 @@ def create_collage(images, output_path, max_images=3):
         x_offset += img.size[0] + 20
     collage.save(output_path)
 
+# Function to get the remaining credit for the client
+def get_credit(session_id):
+    credit_url = f"{API_URL}?key={API_KEY}&PHPSESSID={session_id}&call=getCredits&product_ID="
+    response = requests.get(credit_url)
+    if response.status_code == 200:
+        return response.json()  # Return the credit data
+    return None
 
 # Fonction pour créer tous les collages
 def create_all_collages(files, client_name):
@@ -90,6 +101,25 @@ def create_all_collages(files, client_name):
 
 # Interface utilisateur Streamlit
 st.title("Formulaire de dépôt FIDEALIS pour ENR ")
+
+
+session_id = api_login()
+if session_id:
+    # Appel pour obtenir les crédits pour le client
+    credit_data = get_credit(session_id)
+
+    # Vérifie si les données sont correctes
+    if isinstance(credit_data, dict):
+        # Isoler la quantité du produit 4
+        product_4_quantity = get_quantity_for_product_4(credit_data)
+
+        # Affichage des résultats en haut
+        st.write("Crédit restant pour la clé de compte :")
+        st.write(f"La quantité de credit : {product_4_quantity}")
+    else:
+        st.error("Échec de la récupération des données de crédit.")
+else:
+    st.error("Échec de la connexion.")
 
 client_name = st.text_input("Nom du client")
 address = st.text_input("Adresse complète (ex: 123 rue Exemple, Paris, France)")
@@ -121,7 +151,7 @@ if st.button("Soumettre"):
         st.error("Veuillez remplir tous les champs et télécharger au moins une photo.")
     else:
         st.info("Préparation de l'envoi...")
-        session_id = api_login()
+
         if session_id:
             # Sauvegarder les fichiers localement
             saved_files = []
